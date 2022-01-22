@@ -1,4 +1,4 @@
-package com.sunnyday.constraintlayout.noteretrofit
+package com.sunnyday.noteretrofit
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

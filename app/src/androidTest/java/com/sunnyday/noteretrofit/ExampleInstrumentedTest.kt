@@ -1,4 +1,4 @@
-package com.sunnyday.constraintlayout.noteretrofit
+package com.sunnyday.noteretrofit
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
