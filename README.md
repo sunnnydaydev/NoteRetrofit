@@ -27,7 +27,7 @@ Retrofit封装后简化了用户的操作，使用户进行网络交互更加方
 
 #  案例引申
 
-######  最简单的get 异步请求百度
+######  定义个请求接口
 
 ```java
 /**
@@ -42,7 +42,7 @@ interface BaiDuServices {
 }
 ```
 
-
+###### 最简单的get 异步请求百度
 
 ```java
     /**
@@ -75,24 +75,148 @@ interface BaiDuServices {
         })
     }
 log：
-2022-01-25 21:28:01.100 8515-8515/com.sunnyday.noteretrofit I/MainActivity: currentThread:Thread[main,5,main]
-2022-01-25 21:28:01.100 8515-8515/com.sunnyday.noteretrofit I/MainActivity: 请求成功！
-2022-01-25 21:28:01.101 8515-8515/com.sunnyday.noteretrofit I/MainActivity: 获取数据：<!DOCTYPE html>....... </p> </div> </div> </div> </body> </html>
+/com.sunnyday.noteretrofit I/MainActivity: currentThread:Thread[main,5,main]
+/com.sunnyday.noteretrofit I/MainActivity: 请求成功！
+/com.sunnyday.noteretrofit I/MainActivity: 获取数据：<!DOCTYPE html>....... </p> </div> </div> </div> </body> </html>
 ```
 
-###### 小总结
+###### 如何进行同步请求？
 
-- 如何进行同步请求
-- 注意点：Call的导包、Call泛型值
+> 很简单使用Call对象的execute方法。
 
-- retrofit的扩展：rxjava、Gson 结合。
+```java
+    /**
+     * “同步”方式访问网络
+     *需要自己开线程，子线程中请求网络。
+     * */
+    private fun sendSyncHttpRequestByRetrofit() {
+        thread {
+            val baseUrl = "https://www.baidu.com/"
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .build()
+            val baiDuServices = retrofit.create(BaiDuServices::class.java)
+            val call = baiDuServices.getDataFromBaiDu()
+            // 同步请求：使用的call.execute()
+            val response = call.execute()
+            val str = response.body()?.string()
+            Log.i(TAG, "同步请求结果：$str")
+        }
+    }
+```
 
 
 
-###### addConverterFactory的使用
+###### 注意点：导包
 
-- 自定义（简书Demo）
-- 三方提供（Gson的为例子）
+###### > 和oKhttp混合使用，可能导包有点迷惑。
+
+- Call的导包：Call 为retrifit 库的包
+- Call泛型值：未添加addConverterFactory时泛型值默认为okhttp3.ResponseBody类型
+- CallBack：call#enqueue时使用的callBack也是retrofit库中的。
+
+```java
+//ResponseBody 为Okhttp3库的包
+import okhttp3.ResponseBody
+// Call 为retrifit 库的包
+import retrofit2.Call
+import retrofit2.http.GET
+
+/**
+ * Create by SunnyDay on 20:49 2022/01/25
+ */
+interface BaiDuServices {
+    /**
+     * 请求百度网页的接口
+     *参考： https://blog.csdn.net/a77979744/article/details/67913738
+     * */
+    @GET("/")
+    fun getDataFromBaiDu(): Call<ResponseBody>
+}
+```
+
+
+
+###### 小疑惑：定义接口时可以在Call< T >传任意类型吗？
+
+> 不行的这个与转化器有关，可通过addConverterFactory来添加，来定义call泛型类型。
+>
+> 未添加时默认为okhttp3.ResponseBody类型，使用其他类则报错，如传个String。
+
+###### 自定义ConverterFactory 直接获取Sting类型返回值
+
+```java
+interface BaiDuServices {
+    /**
+     * 请求百度网页的接口
+     *参考： https://blog.csdn.net/a77979744/article/details/67913738
+     * */
+    @GET("/")
+    fun getDataFromBaiDu(): Call<ResponseBody>
+
+    /**
+     * 定义接口，期望返回String数据
+     * */
+    @GET("/")
+    fun sendHttp2BaiDu(): Call<String>
+}
+```
+
+```java
+    /**
+     * 自定义ConvertFactory 使Response#body()返回值直接为String。
+     * */
+    private fun customConvertFactory() {
+            val baseUrl = "https://www.baidu.com/"
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(object : Converter.Factory() {
+                    override fun responseBodyConverter(
+                        type: Type,
+                        annotations: Array<Annotation>,
+                        retrofit: Retrofit
+                    ): Converter<ResponseBody, *>? {
+                        return Converter<ResponseBody, String> {
+                            // 1、注意这里：自定义Response#body()返回值
+                            // 直接返回String数据
+                            it.string()
+                        }
+                    }
+                })
+                .build()
+            val baiDuServices = retrofit.create(BaiDuServices::class.java)
+            val call = baiDuServices.sendHttp2BaiDu()
+
+            call.enqueue(object : Callback<String> {
+                override fun onFailure(call: Call<String>, t: Throwable) {
+
+                }
+
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    //2、使用自定义的结果
+                    Log.i(TAG, "获取数据：${response.body()}")
+                }
+            })
+    }
+```
+
+
+
+###### Retrofit的扩展 
+
+> Retrofit 提供了很多自定义的ConverterFactory 大大便利了我们的开发，如：
+>
+>  GsonConverterFactory ： 支持Gson解析 ，可吧网络返回json直接映射为实体类。
+>
+>  RxJavaCallAdapterFactory ：支持Rxjava
+>
+> 等等有很多，使用时需要额外添加依赖，如下GsonConverterFactory 
+
+```java
+implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+```
+
+
 
 # 注解
 

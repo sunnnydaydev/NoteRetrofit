@@ -1,5 +1,6 @@
 package com.sunnyday.noteretrofit.retrofitservices
 
+import com.sunnyday.noteretrofit.WangZheModel
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
@@ -14,4 +15,16 @@ interface BaiDuServices {
      * */
     @GET("/")
     fun getDataFromBaiDu(): Call<ResponseBody>
+
+    /**
+     * 定义接口，期望返回String数据
+     * */
+    @GET("/")
+    fun sendHttp2BaiDu(): Call<String>
+
+    /**
+     * 定义接口，期望返回String数据.
+     * */
+    @GET("/OkHttp/TestListJson.json")
+    fun getWangZheData(): Call<WangZheModel>
 }
