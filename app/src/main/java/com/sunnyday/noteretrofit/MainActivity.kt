@@ -11,9 +11,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 
 class MainActivity : AppCompatActivity() {
-    companion object{
+    companion object {
         const val TAG = "MainActivity"
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 使用retrofit进行异步网络请求栗子
+     * 使用retrofit进行"异步"网络请求栗子
      * */
     private fun sendAsyncHttpRequestByRetrofit() {
         // 在这里建议在创建baseUrl中不以”/”结尾，API中以”/”开头和结尾。
@@ -36,17 +37,37 @@ class MainActivity : AppCompatActivity() {
         //3、获取call对象
         val call = baiDuServices.getDataFromBaiDu()
         // 4、异步请求
-        call.enqueue(object :  Callback<ResponseBody> {
+        call.enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.i(TAG,"currentThread:${Thread.currentThread()}")
-                Log.i(TAG,"请求失败！")
+                Log.i(TAG, "currentThread:${Thread.currentThread()}")
+                Log.i(TAG, "请求失败！")
             }
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                Log.i(TAG,"currentThread:${Thread.currentThread()}")
-                Log.i(TAG,"请求成功！")
-                Log.i(TAG,"获取数据：${response.body()?.string()}")
+                Log.i(TAG, "currentThread:${Thread.currentThread()}")
+                Log.i(TAG, "请求成功！")
+                Log.i(TAG, "获取数据：${response.body()?.string()}")
             }
         })
+    }
+
+    /**
+     * “同步”方式访问网络
+     * */
+    private fun sendSyncHttpRequestByRetrofit() {
+        // 在这里建议在创建baseUrl中不以”/”结尾，API中以”/”开头和结尾。
+        val baseUrl = "https://www.baidu.com/"
+
+        // 1、创建retrofit实例
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .build()
+        //2、获取自定义的接口实现对象
+        val baiDuServices = retrofit.create(BaiDuServices::class.java)
+        //3、获取call对象
+        val call = baiDuServices.getDataFromBaiDu()
+        // 4、异步请求
+        val response = call.execute()
+
     }
 }
