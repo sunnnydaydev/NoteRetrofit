@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
      * 使用提供的GsonConverterFactory 直接获取实体类。
      * */
     private fun useGsonConverterFactory() {
-        val baseUrl = "http://192.168.2.107:8080"
+        val baseUrl = "http://192.168.2.112:8080"
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
