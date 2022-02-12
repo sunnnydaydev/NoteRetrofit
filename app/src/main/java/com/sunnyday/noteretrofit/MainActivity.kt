@@ -23,7 +23,8 @@ class MainActivity : AppCompatActivity() {
         // sendAsyncHttpRequestByRetrofit()
        // sendSyncHttpRequestByRetrofit()
       //  customConvertFactory()
-        useGsonConverterFactory()
+       // useGsonConverterFactory()
+        sendAsyncHttpPOSTRequestByRetrofit()
     }
 
     /**
@@ -132,6 +133,31 @@ class MainActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call<WangZheModel>, response: Response<WangZheModel>) {
                Log.i(TAG,"onResponse:${response.body()}")
+            }
+        })
+    }
+
+
+    /**
+     * 使用retrofit进行 post "异步"网络请求栗子,上传简单的键值对。
+     * */
+    private fun sendAsyncHttpPOSTRequestByRetrofit() {
+        val baseUrl = "https://www.baidu.com/"
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .build()
+        val baiDuServices = retrofit.create(BaiDuServices::class.java)
+        val call = baiDuServices.sendHttp2BaiDuByPost()
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.i(TAG, "currentThread:${Thread.currentThread()}")
+                Log.i(TAG, "请求失败！")
+            }
+
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                Log.i(TAG, "currentThread:${Thread.currentThread()}")
+                Log.i(TAG, "请求成功！")
+                Log.i(TAG, "获取数据：${response.body()?.string()}")
             }
         })
     }

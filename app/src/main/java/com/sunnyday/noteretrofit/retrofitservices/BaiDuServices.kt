@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.HTTP
+import retrofit2.http.POST
 
 /**
  * Create by SunnyDay on 20:49 2022/01/25
@@ -34,4 +35,10 @@ interface BaiDuServices {
      * */
     @HTTP(method = "GET",path = "/OkHttp/TestListJson.json")
     fun getWangZheDataTest(): Call<WangZheModel>
+
+    /**
+     * 定义请求百度网页的接口，上传key-value字符串
+     * */
+    @POST("/")
+    fun sendHttp2BaiDuByPost(): Call<ResponseBody>
 }

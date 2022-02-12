@@ -242,13 +242,11 @@ interface BaiDuServices {
 
 
 
-回顾下请求的接口，其实Retrofit 是基于注解的请求框架，框架提供和很多注解字段来供我们使用。其中根据作用的可以大致分为三类：
+回顾下请求的接口，其实Retrofit 是基于注解的请求框架，框架提供和很多注解字段来供我们使用。其中根据作用的对象可以大致分为三类：
 
 - 方法相关：注解作用于方法上，如上的@GET
 - 方法参数相关：注解作用于方法的参数上，一般用于url的path、Parmas 拼接。
 - 类相关：作用于类上。
-
-###### 概览
 
 | 方法注解 | 简介                                      |
 | -------- | ----------------------------------------- |
@@ -260,6 +258,41 @@ interface BaiDuServices {
 | @HEAD    | 对应HTTP的head请求。标记为head请求。      |
 | @OPTION  | 对应HTTP的option请求。标记为option请求。  |
 | @HTTP    | 可扩展字段，可以替换上述7种Http请求方法。 |
+
+（1）@GET
+
+```java
+        // baseUrl
+        val baseUrl = "http://192.168.2.112:8080"
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+```
+
+```java
+    // path
+    @GET("/OkHttp/TestListJson.json")
+    fun getWangZheData(): Call<WangZheModel>
+```
+
+@GET用来标记请求方法为GET请求。通过之前的栗子我们也是了解到了Retrofit采用BaseUrl+Path的形式访问网络的。如上就是一个简单的get请求。
+
+如是想在Path中拼接一些参数也是可以实现的，这时需要给方法添加参数，使用参数注解字段，这个下面再介绍。
+
+（2）除了GET请求最常见的就是POST 请求了，那么Retrofit是如何进行POST请求的呢？就以上传最简单的key-value键值对为栗子。
+
+
+
+| 类注解         | 简介 |
+| -------------- | ---- |
+| @FormUrlEncode |      |
+|                |      |
+|                |      |
+
+
+
+
 
 ###### 方法注解
 
@@ -295,3 +328,6 @@ interface BaiDuServices {
 [文章2](https://blog.csdn.net/qq_30621333/article/details/115485408)
 
 [retrofit Github 官网](https://github.com/square/retrofit)
+
+
+
