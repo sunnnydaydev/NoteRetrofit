@@ -3,9 +3,7 @@ package com.sunnyday.noteretrofit.retrofitservices
 import com.sunnyday.noteretrofit.WangZheModel
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.HTTP
-import retrofit2.http.POST
+import retrofit2.http.*
 
 /**
  * Create by SunnyDay on 20:49 2022/01/25

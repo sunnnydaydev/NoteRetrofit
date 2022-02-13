@@ -27,7 +27,7 @@ Retrofit封装后简化了用户的操作，使用户进行网络交互更加方
 
 #  案例引申
 
-######  定义个请求接口
+如何同步/异步请求百度？ 首先我们定义个请求接口：
 
 ```java
 /**
@@ -42,7 +42,9 @@ interface BaiDuServices {
 }
 ```
 
-###### 最简单的get 异步请求百度
+
+
+最简单的get 异步请求百度：
 
 ```java
     /**
@@ -80,9 +82,7 @@ log：
 /com.sunnyday.noteretrofit I/MainActivity: 获取数据：<!DOCTYPE html>....... </p> </div> </div> </div> </body> </html>
 ```
 
-###### 如何进行同步请求？
-
-> 很简单使用Call对象的execute方法即可。
+如何进行同步请求呢？很简单使用Call对象的execute方法即可：
 
 ```java
     /**
@@ -105,17 +105,13 @@ log：
     }
 ```
 
-
-
-###### 注意点：导包
-
-###### > 和oKhttp混合使用，可能导包有点迷惑。
+导包注意点：和oKhttp混合使用，可能导包有点迷惑，如下：
 
 - Call的导包：Call 为retrifit 库的包。
 - Call泛型值：未添加addConverterFactory时泛型值默认为okhttp3.ResponseBody类型
 - Callback：call#enqueue时使用的callback也是retrofit库中的。
 
-###### 小疑惑：定义接口时可以在Call< T >传任意类型吗？
+可能存在的疑惑：定义接口时可以在Call< T >传任意类型吗？
 
 > 不行的这个与转化器有关，可通过addConverterFactory来添加，来定义call泛型类型。
 >
@@ -169,9 +165,7 @@ interface BaiDuServices {
     }
 ```
 
-
-
-###### Retrofit的扩展 
+有关Retrofit的扩展 ConverterFactory类
 
 > Retrofit 提供了很多自定义的ConverterFactory 大大便利了我们的开发，如：
 >
@@ -214,118 +208,58 @@ MainActivity: onResponse:WangZheModel(categoryId=0, categoryName=打野, name=�
 
 # 注解
 
-```java
-/**
- * Create by SunnyDay on 20:49 2022/01/25
- */
-interface BaiDuServices {
-    /**
-     * 请求百度网页的接口
-     *参考： https://blog.csdn.net/a77979744/article/details/67913738
-     * */
-    @GET("/")
-    fun getDataFromBaiDu(): Call<ResponseBody>
+Retrofit 是基于注解的请求框架，框架提供和很多注解字段来供我们使用。其中根据作用的对象可以大致分为三类：
 
-    /**
-     * 定义请求百度网页的接口，期望返回String数据
-     * */
-    @GET("/")
-    fun sendHttp2BaiDu(): Call<String>
+- 方法相关：注解作用于方法上
+- 方法参数相关：注解作用于方法的参数上
+- 类相关：作用于类上
 
-    /**
-     * 定义接口，期望返回指定的Model类型数据.
-     * */
-    @GET("/OkHttp/TestListJson.json")
-    fun getWangZheData(): Call<WangZheModel>
-}
-```
+| 作用于方法 | 简介                                      |
+| ---------- | ----------------------------------------- |
+| @GET       | 对应HTTP的get请求。标记为get请求。        |
+| @POST      | 对应HTTP的post请求。标记为post请求。      |
+| @PUT       | 对应HTTP的put请求。标记为put请求。        |
+| @DELETE    | 对应HTTP的delete请求。标记为delete请求。  |
+| @PATH      | 对应HTTP的path请求。标记为path请求。      |
+| @HEAD      | 对应HTTP的head请求。标记为head请求。      |
+| @OPTION    | 对应HTTP的option请求。标记为option请求。  |
+| @HTTP      | 可扩展字段，可以替换上述7种Http请求方法。 |
 
+Retrofit采用Base域名+请求接口的形式访问网络的。Base域名很好理解，请求接口就是不同path下的文件。
 
+请求过程中还可能设计到请求参数的查询等，所以有必要吧剩余的两种注解字段都介绍下然后综合举例。
 
-回顾下请求的接口，其实Retrofit 是基于注解的请求框架，框架提供和很多注解字段来供我们使用。其中根据作用的对象可以大致分为三类：
+| 作用于类        | 简介 |
+| --------------- | ---- |
+| @FormUrlEncoded |      |
+| @Multipart      |      |
+| @Streaming      |      |
 
-- 方法相关：注解作用于方法上，如上的@GET
-- 方法参数相关：注解作用于方法的参数上，一般用于url的path、Parmas 拼接。
-- 类相关：作用于类上。
-
-| 方法注解 | 简介                                      |
-| -------- | ----------------------------------------- |
-| @GET     | 对应HTTP的get请求。标记为get请求。        |
-| @POST    | 对应HTTP的post请求。标记为post请求。      |
-| @PUT     | 对应HTTP的put请求。标记为put请求。        |
-| @DELETE  | 对应HTTP的delete请求。标记为delete请求。  |
-| @PATH    | 对应HTTP的path请求。标记为path请求。      |
-| @HEAD    | 对应HTTP的head请求。标记为head请求。      |
-| @OPTION  | 对应HTTP的option请求。标记为option请求。  |
-| @HTTP    | 可扩展字段，可以替换上述7种Http请求方法。 |
-
-（1）@GET
-
-```java
-        // baseUrl
-        val baseUrl = "http://192.168.2.112:8080"
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-```
-
-```java
-    // path
-    @GET("/OkHttp/TestListJson.json")
-    fun getWangZheData(): Call<WangZheModel>
-```
-
-@GET用来标记请求方法为GET请求。通过之前的栗子我们也是了解到了Retrofit采用BaseUrl+Path的形式访问网络的。如上就是一个简单的get请求。
-
-如是想在Path中拼接一些参数也是可以实现的，这时需要给方法添加参数，使用参数注解字段，这个下面再介绍。
-
-（2）除了GET请求最常见的就是POST 请求了，那么Retrofit是如何进行POST请求的呢？就以上传最简单的key-value键值对为栗子。
-
-
-
-| 类注解         | 简介 |
+| 作用于方法参数 | 简介 |
 | -------------- | ---- |
-| @FormUrlEncode |      |
-|                |      |
-|                |      |
-
-
-
-
-
-###### 方法注解
-
-@GET
-
-@POST
-
-@HTTP
-
-```java
-
-   /**
-     * 定义接口，期望返回指定的Model类型数据.
-     * */
-    @GET("/OkHttp/TestListJson.json")
-    fun getWangZheData(): Call<WangZheModel>
-
-    /**
-     * 使用@HTTP来替换@GET
-     * */
-    @HTTP(method = "GET",path = "/OkHttp/TestListJson.json")
-    fun getWangZheDataTest(): Call<WangZheModel>
-```
+| @Header        |      |
+| @Headers       |      |
+| @Part          |      |
+| @PartMap       |      |
+| @Url           |      |
+| @Body          |      |
+| @Path          |      |
+| @Query         |      |
+| @QueryMap      |      |
+| @Filed         |      |
+| @FiledMap      |      |
 
 待续~
 
 # 封装
 
-参考：
+# 参考：
 
-[文章1](https://blog.csdn.net/carson_ho/article/details/73732076?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164266983216780366538164%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=164266983216780366538164&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-73732076.first_rank_v2_pc_rank_v29&utm_term=Retrofit&spm=1018.2226.3001.4187)
+[这是一份详细的 Retrofit使用教程](https://blog.csdn.net/carson_ho/article/details/73732076?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164266983216780366538164%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=164266983216780366538164&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-73732076.first_rank_v2_pc_rank_v29&utm_term=Retrofit&spm=1018.2226.3001.4187)
 
-[文章2](https://blog.csdn.net/qq_30621333/article/details/115485408)
+[Retrofit详解](https://blog.csdn.net/qq_30621333/article/details/115485408)
+
+[Retrofit 注解学习](https://blog.csdn.net/weixin_36709064/article/details/82468549)
 
 [retrofit Github 官网](https://github.com/square/retrofit)
 
